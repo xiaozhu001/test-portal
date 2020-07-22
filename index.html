@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>体验插件钱包</title>
+
+    <script type="text/javascript" src="./testAbiJson.js"></script>
+    <script>
+        function main() {
+            if (!checkConflux()) {
+                return;
+            }
+            buildContract();
+        }
+        let accounts;
+        let contract;
+        async function checkConflux() {
+            if (window.conflux === 'undefined') {
+                if(confirm('检测到您的浏览器中并未安装conflux钱包插件，点击确定前往下载。\n\n 注：如果没有跳转看下是不是被浏览器拦截了')){
+                    window.open("https://github.com/Conflux-Chain/conflux-portal/releases")
+                }
+
+                var body = document.getElementById("body");
+                body.innerHTML = "本网址需要安装conflux钱包插件， 请 <a href='https://github.com/Conflux-Chain/conflux-portal/releases'>前往下载</a> conflux钱包插件";
+                return false;
+            }
+
+            accounts = await conflux.enable();
+            return true;
+        }
+
+        function buildContract() {
+            contract = confluxJS.Contract({
+                abi: abiJson,
+                address: "0x8067244e0b629610eb24cc9da4fe8b023fc02fd9",
+            });
+        }
+
+        async function likeSupply() {
+            let abc = await contract.likeSupply();
+            console.log(abc.toString());
+        }
+        async function transfer() {
+            let address = document.getElementById('address').value;
+            await contract.transfer(address, 10)
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+        }
+        async function startUp() {
+            await contract.startUp()
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+        }
+        async function addGasoline() {
+
+            await contract.addGasoline(10)
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+        }
+        async function changeGasoline() {
+
+            await contract.changeGasoline()
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+            gasolineType()
+        }
+        async function changeDoorStatus() {
+
+            await contract.changeDoorStatus()
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+            getDoorStatus();
+        }
+        async function setCarInfo() {
+
+            let color = document.getElementById('color').value;
+            let wheelNum = document.getElementById('wheelNum').value;
+            await contract.setCarInfo(color, wheelNum)
+                .sendTransaction({ from: accounts[0] })
+                .confirmed();
+            getDoorStatus();
+        }
+        async function owner() {
+            let abc = await contract.owner();
+            console.log(abc.toString());
+        }
+        async function getGasoline() {
+            let abc = await contract.getGasoline();
+            console.log(abc.toString());
+            document.getElementById('gasoline').innerHTML = abc.toString();
+        }
+        async function getGasolineType() {
+            let abc = await contract.getGasolineType();
+            console.log(abc.toString());
+            document.getElementById('gasolineType').innerHTML = abc.toString();
+        }
+        async function getDoorStatus() {
+            let abc = await contract.getDoorStatus();
+            console.log(abc.toString());
+            document.getElementById('doorStatus').innerHTML = abc.toString();
+        }
+    </script>
+</head>
+<body>
+
+<button onclick="startUp()">开车</button>
+<button onclick="getGasoline()">查看油量</button>油量：<span id="gasoline"></span>
+<br/>
+<button onclick="addGasoline()">加10点油</button>
+
+<br/>
+<button onclick="getGasolineType()">获取汽油型号</button><button onclick="changeGasoline()">更换汽油</button>汽油类型：<span id="gasolineType"></span>
+
+<br/>
+<button onclick="getDoorStatus()">获取车门状态</button><button onclick="changeDoorStatus()">改变车门状态</button>车门状态：<span id="doorStatus"></span>
+
+<br/>
+<button onclick="setCarInfo()">设置小汽车参数</button> 颜色：<input type="text" id="color"/> 车轮数：<input type="text" id="wheelNum">
+<button onclick="addGasoline()">获取小汽车参数</button>
+
+
+<script>
+    main();
+</script>
+</body>
+</html>
